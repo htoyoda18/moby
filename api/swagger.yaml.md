@@ -1,0 +1,44 @@
+- Container
+  - GET /containers/json - コンテナ一覧
+  - POST /containers/create - コンテナ作成
+  - GET /containers/{id}/json - コンテナ詳細情報取得
+  - POST /containers/{id}/start - コンテナ起動
+  - POST /containers/{id}/stop - コンテナ停止
+  - DELETE /containers/{id} - コンテナ削除
+- Image
+  - GET /images/json - イメージ一覧
+  - POST /images/create - イメージの pull
+  - POST /build - イメージの build
+  - GET /images/{name}/json - イメージ詳細
+  - POST /images/{name}/push - イメージの push
+  - DELETE /images/{name} - イメージ削除
+- Network
+  - GET /networks - ネットワーク一覧
+  - POST /networks/create - ネットワーク作成
+  - DELETE /networks/{id} - ネットワーク削除
+  - POST /networks/{id}/connect - コンテナをネットワークに接続
+  - POST /networks/{id}/disconnect - コンテナをネットワークから切断
+- Volume
+  - GET /volumes - ボリューム一覧
+  - POST /volumes/create - ボリューム作成
+  - GET /volumes/{name} - ボリューム詳細
+  - DELETE /volumes/{name} - ボリューム削除
+- Exec
+  - POST /containers/{id}/exec - exec インスタンス作成
+  - POST /exec/{id}/start - exec 開始
+  - GET /exec/{id}/json - exec 詳細
+- Swarm
+  - Swarm: クラスタの初期化・参加・離脱
+  - Node: Swarm ノードの管理
+  - Service: サービスの作成・更新・削除
+  - Task: タスクの確認
+  - Secret: シークレットの管理
+  - Config: 設定の管理
+- System
+  - GET /info - システム全体の情報
+  - GET /version - バージョン情報
+  - GET /events - システムイベントのストリーム
+  - GET /system/df - ディスク使用状況
+  - POST /auth - レジストリ認証
+- Plugin
+  - プラグインの検索・インストール・有効化・無効化・削除
