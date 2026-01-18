@@ -12,7 +12,14 @@
     - デーモンランナー作成
     - ログフォーマットをテキスト形式に設定
     - 標準エラー出力にログを設定
-    - Cobraコマンド構造を作成
+    - Cobra コマンド構造を作成
     - 出力ストリームを設定
   - r.Run(ctx)
     - デーモン実行
+- 呼び出しの詳細
+  - cmd/dockerd/main.go main
+  - daemon/command/docker.go NewDaemonRunner
+  - daemon/command/docker.go newDaemonCommand
+  - daemon/command/docker_unix.go runDaemon
+  - daemon/command/daemon.go start
+  - daemon/daemon.go NewDaemon
