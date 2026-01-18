@@ -1,0 +1,22 @@
+- 責務
+  - dockerd コマンドの CLI 構造を定義し、デーモンランナーを提供する
+- 処理の詳細
+  - honorXDG
+    - XDG Base Directory 仕様に従うかを制御
+    - XDG Base Directory
+      - Linux などで設定ファイル・キャッシュ・データの保存場所を統一するための仕様
+  - newDaemonCommand
+    - Cobra コマンドの構築
+  - NoArgs
+    - 引数検証
+  - Runner
+  - NewDaemonRunner
+    - エントリーポイント
+    - ログフォーマットをテキスト形式に設定
+    - ログ出力先を設定
+    - Cobra コマンドを作成
+    - 出力ストリームを設定
+    - Runner インターフェースを実装した daemonRunner を返す
+  - configureGRPCLog
+    - gRPC ログ設定
+    -  gRPCのデフォルトロガーが過剰に詳細なため、ログレベルを引き下げる
