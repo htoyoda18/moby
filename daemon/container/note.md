@@ -1,0 +1,46 @@
+- archive_windows.go
+- attach_context.go
+- container_test.go
+- container_unix.go
+- container_windows.go
+- container.go
+  - Container 構造体
+    - コンテナのすべての状態と設定を保持する中心的な構造体
+    - 主なフィールド
+      - State - 実行状態
+      - Config - コンテナ設定
+      - HostConfig - ホスト固有の設定
+      - MountPoints - マウントポイント
+      - NetworkSettings - ネットワーク設定
+      - ExecCommands - 実行中の exec コマンド
+- env_test.go
+- env.go
+- exec.go
+  - ExecConfig
+    - 個別の exec コマンドの設定
+  - ExecStore
+    - 実行中/完了した exec コマンドを追跡
+  - stdio 初期化
+- health.go
+- history.go
+- memory_store_test.go
+- memory_store.go
+- monitor.go
+- mounts_unix.go
+- mounts_windows.go
+- rwlayer.go
+- state_test.go
+- state.go
+  - コンテナの実行状態を管理
+  - 重要な状態遷移メソッド
+    - SetRunning
+      - 実行中に設定
+    - SetStopped
+      - 停止状態に設定
+    - SetRestarting
+      - 再起動中に設定
+  - Wait
+    - 特定の条件まで待機
+- store.go
+- view_test.go
+- view.go
