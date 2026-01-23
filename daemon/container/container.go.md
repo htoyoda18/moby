@@ -1,0 +1,51 @@
+- 概要
+  - Docker コンテナの中核となる構造体とメソッド を定義
+- 詳細の処理
+  - Container 構造体
+    - コンテナの完全な状態を保持する中心的な構造体
+  - FromDisk
+    - config.v2.json と hostconfig.json からコンテナ設定を読み込み
+  - readHostConfig
+    - ホスト設定を JSON から読み込み
+  - toDisk
+    - 設定をディスクに書き込み、ディープコピーを返す
+  - CheckpointTo
+    - コンテナの状態を永続化し、クエリ可能にする
+  - WriteHostConfig
+    - ホスト設定を保存
+  - GetResourcePath
+    - コンテナの BaseFS 内のパスを安全に解決
+  - GetRootResourcePath
+    - コンテナの BaseFS 内のパスを安全に解決
+  - GetRootResourcePath
+    - コンテナのルート（メタデータディレクトリ）内のパスを解決
+  - StartLogger
+    - ログドライバを初期化
+  - AddMountPointWithVolume
+    - ボリュームマウントポイントを追加
+  - UnmountVolumes
+    - すべてのボリュームをアンマウント
+  - ShouldRestart
+    - 再起動ポリシーに基づいて再起動すべきか判定
+  - RestartManager
+    - 再起動マネージャーのインスタンスを取得
+  - StopSignal
+    - 再起動ポリシーに基づいて再起動すべきか判定
+  - RestartManager
+    - 再起動マネージャーのインスタンスを取得
+  - StopSignal
+    - コンテナ停止時のシグナルを返す
+  - StopTimeout
+    - 停止タイムアウトを返す
+  - StdinPipe, StdoutPipe, StderrPipe
+    - 標準入出力ストリームを取得
+  - InitializeStdio
+    - libcontainerd が stdio を接続する際に呼ばれる
+  - SecretMountPath
+    - Swarm シークレットのマウントパス
+  - SecretFilePath
+    - シークレットファイルのパス
+  - RestoreTask
+    - containerd のコンテナとタスクハンドルを復元
+  - GetRunningTask
+    - 実行中のタスクを取得(ロック必須)

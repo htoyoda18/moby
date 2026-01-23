@@ -113,3 +113,33 @@
     - セキュリティポリシー
   - TESTING.md
     - テスト戦略とガイドライン
+- 知っておくべきポイント(https://chatgpt.com/c/69739458-23d0-8322-85e1-478a2f4354f4)
+  - dockerd は「巨大なオーケストレーター」であって、実体は持たない
+    - dockerd 自体は「実行エンジン」ではない
+    - 実体はすべて 外部コンポーネントに委譲
+      - containerd
+      - runc
+      - networking
+      - snapshotter
+  - container lifecycle は「状態遷移の塊」
+    - moby は イベント駆動の state machine
+    - created → running → paused → stopped → dead
+  - ロック戦略
+    - API → backend → container の ロック階層
+  - libcontainer / runc は完全に別世界
+    - moby は OCI Runtime Spec のクライアント
+    - namespace / cgroup のロジックは runc 側
+  - containerd client は “thin” に使われている
+    - dockerd ↔ containerd の関係
+      - gRPC client
+    - **「containerd をどう使うか」**に集中して読む
+  - Image / Snapshot / Layer の分離
+  - GraphDriver は “過去の遺産”
+  - Events は “副作用の出口”
+  - API は「後方互換性の塊」
+  - Clean Architecture を期待しない
+- メモ
+  - BaseFS
+    - コンテナのファイルシステムがマウントされているホスト上のパス
+  - Swarm
+    - Docker のクラスタ管理・オーケストレーション機能

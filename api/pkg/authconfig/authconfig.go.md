@@ -1,0 +1,16 @@
+- 責務
+  - Docker Registry の認証情報を HTTP ヘッダー用にエンコード/デコードする
+- 用途
+  - Docker Image push/pull 時の X-Registry-Auth ヘッダー処理
+- 内部構造
+  - Encode
+    - 認証情報のエンコード
+  - Decode
+    - ヘッダーからのデコード
+  - DecodeRequestBody
+    - リクエストボディからのデコード
+  - decode
+    - 共通デコード処理
+    - io.Reader から JSON をデコード
+  - invalid
+    - エラーメッセージに"invalid X-Registry-Auth header:"プレフィックスを追加

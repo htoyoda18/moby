@@ -1,8 +1,11 @@
 - archive_windows.go
 - attach_context.go
+  - アタッチコンテキスト管理
 - container_test.go
 - container_unix.go
+  - OS 固有の実装
 - container_windows.go
+  - OS 固有の実装
 - container.go
   - Container 構造体
     - コンテナのすべての状態と設定を保持する中心的な構造体
@@ -15,6 +18,11 @@
       - ExecCommands - 実行中の exec コマンド
 - env_test.go
 - env.go
+  - 環境変数処理
+  - ReplaceOrAppendEnvValues
+    - 環境変数のマージ/上書き
+  - デフォルト値とユーザー定義値の統合
+  - 環境変数の削除もサポート
 - exec.go
   - ExecConfig
     - 個別の exec コマンドの設定
@@ -22,13 +30,24 @@
     - 実行中/完了した exec コマンドを追跡
   - stdio 初期化
 - health.go
+  - ヘルスチェック状態の管理
+  - モニターチャネルの開閉
 - history.go
+  - コンテナ履歴/ソート機能
 - memory_store_test.go
 - memory_store.go
 - monitor.go
+  - リセット処理
+  - Reset
+    - コンテナを再起動可能な状態にリセット
+  - ストリームのクローズ
+  - ログドライバーのクリーンアップ
 - mounts_unix.go
+  - マウント処理
 - mounts_windows.go
+  - マウント処理
 - rwlayer.go
+  - Read-Write レイヤーインターフェース
 - state_test.go
 - state.go
   - コンテナの実行状態を管理
@@ -42,5 +61,7 @@
   - Wait
     - 特定の条件まで待機
 - store.go
+  - 基本的な CRUD 操作を定義
 - view_test.go
 - view.go
+  - ACID トランザクションをサポートする高度なストア
