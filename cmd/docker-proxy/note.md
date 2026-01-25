@@ -1,0 +1,17 @@
+- 概要
+  - Docker コンテナとホストマシン間のネットワークトラフィックを転送するための独立したプロセス
+  - TCP、UDP、SCTP の 3 つのプロトコルに対応
+  - これにより、Docker のポートマッピングが実現される
+- 内部構造
+  - main_linux.go
+    - エントリポイント
+  - network_proxy_linux_test.go
+  - proxy_linux.go
+    - プロキシの基本インターフェースを定義
+  - sctp_proxy_linux.go
+    - SCTP 接続のプロキシ実装
+  - tcp_proxy_linux.go
+    - TCP 接続のプロキシ実装
+  - udp_proxy_linux_test.go
+  - udp_proxy_linux.go
+    - UDP 用のステートフルプロキシ
