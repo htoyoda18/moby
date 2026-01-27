@@ -138,6 +138,27 @@
   - Events は “副作用の出口”
   - API は「後方互換性の塊」
   - Clean Architecture を期待しない
+- Docker の動作原理
+  - Docker は「OS を持たない」
+    - Docker は独自の OS カーネルを持たない
+    ```text
+      [ App ]
+      [ Container ]
+      [ Linux Kernel ]  ← これを全コンテナで共有
+      [ Hardware ]
+    ```
+  - Docker は Linux カーネル機能の集合体
+  - macOS/Windows の場合
+    - macOS / Windows は Linux カーネルを持たない
+      - 軽量 VM の中で Linux を動かしている
+      - Docker Desktop は Linux を裏で起動
+  - 「隔離」はどうやって実現している？
+  - コンテナは「ただのプロセス」
+  - 実行フロー(docker run の裏側)
+  - ファイルシステムはどうなってる？
+  - セキュリティは？
+    - kernel exploit = 全部アウト
+  -
 - メモ
   - BaseFS
     - コンテナのファイルシステムがマウントされているホスト上のパス
