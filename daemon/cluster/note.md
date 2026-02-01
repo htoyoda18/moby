@@ -1,0 +1,70 @@
+- 概要
+  - Docker Swarm Mode の実装を担当するパッケージ
+- 全体のフロー
+  - Docker CLI: docker swarm init
+  - API: POST /swarm/init
+  - Cluster.Init()
+    - アドレス検証・解決
+    - NodeRunner 起動
+    - 状態保存
+  - Cluster ID 返却
+- controllers
+  - コントローラー(プラグイン等)
+- convert
+  - SwarmKit API ⇔ Docker API 変換
+- executor
+  - タスク実行バックエンド
+- internal
+- provider
+  - プロバイダー実装
+- cluster.go
+  - Cluster の中核実装
+- configs.go
+  - Config 管理
+- errors.go
+  - エラー定義
+- filters_test.go
+- filters.go
+  - フィルタリング処理
+- helpers.go
+  - ヘルパー関数
+- listen_addr_linux.go
+- listen_addr_others.go
+- listen_addr.go
+  - リスンアドレス解決
+- networks.go
+  - Swarm ネットワーク管理
+- noderunner.go
+  - Swarm ノードのライフサイクル管理
+    - SwarmKit ノードの起動・停止
+    - エラー時の自動再起動
+    - ノード状態の管理
+- nodes.go
+  - Node の管理
+- secrets.go
+  - Secret 管理
+- services.go
+  - Service の管理
+    - 作成・更新・削除を担当
+- swarm.go
+  - Swarm 初期化・参加・離脱
+  - 主要な Swarm API
+    - Init
+      - クラスタ初期化
+    - Join
+      - クラスタ参加
+    - Leave
+      - クラスタ離脱
+    - Inspect
+      - Swarm 情報取得
+    - Update
+    - GetUnlockKey
+      - 暗号化キー取得
+    - UnlockSwarm
+      - ロック解除
+- tasks.go
+  - Task の管理
+- utils.go
+  - ユーティリティ
+- volumes.go
+  - Swarm ボリューム管理

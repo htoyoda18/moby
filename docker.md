@@ -3,9 +3,12 @@
 ## 1. Docker の本質
 
 ### Docker とは何か
+
 - Docker は「OS を持たない」
+
   - Docker は独自の OS カーネルを持たない
   - Linux カーネル機能の集合体
+
   ```text
     [ App ]
     [ Container ]
@@ -19,6 +22,7 @@
   - Docker Desktop は Linux を裏で起動
 
 ### コンテナの正体
+
 - コンテナは「ただのプロセス」
   - コンテナ = 特殊な設定で起動されたプロセス
   - Linux カーネルの namespace と cgroup で隔離・制御されている
@@ -26,7 +30,9 @@
 ## 2. アーキテクチャ全体像
 
 ### moby (Docker Engine)
+
 - dockerd
+
   - 「巨大なオーケストレーター」であって、実体は持たない
   - moby は OCI Runtime Spec のクライアント (gRPC client)
   - dockerd 自体は「実行エンジン」ではない
@@ -45,6 +51,7 @@
 ## 3. 実行フロー
 
 ### docker run の裏側
+
 ```text
 docker run nginx
 ↓
@@ -62,16 +69,19 @@ Linux kernel
 ### 各コンポーネントの役割
 
 #### docker CLI
+
 - 人間向けインターフェース
 - docker run / build / ps などを提供
 - 内部では REST API を呼び出すだけ
 
 #### REST API
+
 - Docker の安定した契約
 - Docker Engine が公開する操作インターフェース
 - CLI や SDK、外部ツールが利用
 
 #### dockerd
+
 - Docker Engine の中心となるデーモン
 - 全体オーケストレーター
 - REST API を提供し状態を管理
@@ -79,6 +89,7 @@ Linux kernel
 - 「判断と管理」が役割で実行はしない
 
 #### containerd
+
 - コンテナのライフサイクルを管理するデーモン
   - コンテナ作成、起動、停止、削除を担当
 - コンテナの実行管理者
@@ -91,6 +102,7 @@ Linux kernel
   - 起動・停止時に作成／破棄される
 
 #### runc
+
 - OCI Runtime Specification の実装
 - Linux カーネルと直接対話するツール
 - namespace / cgroup 設定を行い exec する
@@ -98,34 +110,40 @@ Linux kernel
 - 「コンテナを実際に起動する最後の役者」
 
 #### Linux kernel
+
 - すべての実体
 - プロセス管理、メモリ管理、ファイルシステム、ネットワークを担当
 
 ## 4. イメージとファイルシステム
 
 ### Image (イメージ)
+
 - Dockerfile からビルドされる
 - コンテナ実行に必要なファイル群とメタデータ
 - 読み取り専用のレイヤー構造
 - 実行時に差分レイヤーが追加される
 
 ### Layer (レイヤー)
+
 - イメージを構成する差分単位
 - 各 Dockerfile 命令ごとに作られる
 - 読み取り専用で再利用可能
 
 ### ファイルシステムの仕組み
+
 - イメージレイヤー
   - 読み取り専用
 - コンテナ実行時
   - 差分レイヤー（書き込み可能）が追加される
 
 ### OverlayFS / overlay2
+
 - Linux の Union Filesystem
 - 複数ディレクトリを 1 つに合成して見せる
 - Docker の標準ストレージドライバー
 
 ### RootFS
+
 - コンテナから見えるルートファイルシステム
 - イメージレイヤーを合成した結果
 - / としてマウントされる
@@ -134,9 +152,11 @@ Linux kernel
 ## 5. Linux カーネル機能
 
 ### 隔離の仕組み
+
 Docker の隔離は Linux カーネルの 2 大機能で実現
 
 #### namespace (名前空間)
+
 - プロセスから見える世界を分離する仕組み
 - 各コンテナは独自の namespace を持つ
 
@@ -158,6 +178,7 @@ Docker の隔離は Linux カーネルの 2 大機能で実現
     - ユーザー ID・グループ ID を分離
 
 #### cgroup (コントロールグループ)
+
 - プロセスが使えるリソース量を制御する仕組み
 - どれだけ使っていいかを制御
 - Docker の --memory や --cpus の実体
@@ -173,6 +194,7 @@ Docker の隔離は Linux カーネルの 2 大機能で実現
     - プロセス数の制限
 
 ### プロセス管理
+
 - コンテナは単なる Linux プロセス
 - **fork**
   - 親プロセスを複製
@@ -184,27 +206,32 @@ Docker の隔離は Linux カーネルの 2 大機能で実現
 ## 6. コンテナライフサイクル
 
 ### 状態遷移
+
 - container lifecycle は「状態遷移の塊」
   - moby はイベント駆動の state machine
   - created → running → paused → stopped → dead
 
 ### ロック戦略
+
 - API → backend → container のロック階層
 
 ## 7. 関連技術・標準
 
 ### OCI (Open Container Initiative)
+
 - コンテナ技術の標準仕様を策定する団体
 - Image Spec と Runtime Spec を定義
 
 ### ネットワークプロトコル
 
 #### TCP
+
 - インターネット上でデータを確実に届けるための通信プロトコル
 - 送信順序の保証、再送制御、誤り検出を行う
 - Web 通信やメールなど、信頼性が重要な通信で使われる
 
 #### UDP
+
 - 高速でシンプルな通信を行うためのプロトコル
 - 到達保証や順序制御、再送は行わず、送ったデータはそのまま届ける
 - 音声通話、動画配信、オンラインゲームなど低遅延が重要な用途で利用
@@ -215,6 +242,14 @@ Docker の隔離は Linux カーネルの 2 大機能で実現
   - 応答を待たず、成功・失敗の確認もしない
 
 #### SCTP
+
 - TCP や UDP の特徴を併せ持つ信頼性の高い通信プロトコル
 - 1 つの接続で複数ストリームを扱え、順序遅延を防ぐ
 - 通信経路の切り替えにも対応
+
+### Swarm
+
+- Docker 公式の軽量オーケストレーター
+- 複数の Docker ホストを 1 つのクラスタとして扱う仕組み
+- 現状ではあまり使われてない
+  - Kubernetes に負けた
