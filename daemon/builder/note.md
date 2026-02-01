@@ -1,0 +1,8 @@
+- backend
+  - ビルドバックエンド実装
+- dockerfile
+  - Dockerfile ビルダー実装
+- remotecontext
+  - リモートコンテキスト処理
+- builder.go
+  - インターフェース定義
