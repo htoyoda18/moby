@@ -93,10 +93,17 @@ func newDaemonCLI(opts *daemonOptions) (*daemonCLI, error) {
 		return nil, err
 	}
 
-	// Verify platform-specific requirements.
-	// This is checked early so that `dockerd --validate` also validates system requirements.
-	if err := daemon.CheckSystem(); err != nil {
-		return nil, fmt.Errorf("system requirements not met: %w", err)
+	if opts.Validate {
+		// Verify platform-specific requirements. This is checked early so
+		// that `dockerd --validate` also validates system requirements.
+		// We only validate when explicitly asked, to allow (un)registering
+		// the service (`dockerd --register-service`, `dockerd --unregister-service`)
+		// on Windows to succeed. See https://github.com/moby/moby/issues/51997
+		//
+		// The same check is also performed on start.
+		if err := daemon.CheckSystem(); err != nil {
+			return nil, fmt.Errorf("system requirements not met: %w", err)
+		}
 	}
 
 	return &daemonCLI{
@@ -109,6 +116,9 @@ func newDaemonCLI(opts *daemonOptions) (*daemonCLI, error) {
 }
 
 func (cli *daemonCLI) start(ctx context.Context) (err error) {
+	if err := daemon.CheckSystem(); err != nil {
+		return fmt.Errorf("system requirements not met: %w", err)
+	}
 	configureProxyEnv(ctx, cli.Config.Proxies)
 	if err := configureDaemonLogs(ctx, cli.Config.DaemonLogConfig); err != nil {
 		return fmt.Errorf("failed to configure daemon logging: %w", err)
@@ -520,6 +530,13 @@ func (cli *daemonCLI) reloadConfig() {
 			}
 		}
 	}
+
+	// On Linux, we use sd_notify to indicate we're reloading config. We send
+	// this signal as early as possible to let systemd know we're reloading,
+	// but must signal "ready" after this completes (even on failure), which
+	// is done by the reload function defined above.
+	done := notifyReloading()
+	defer done()
 
 	if err := config.Reload(*cli.configFile, cli.flags, reload); err != nil {
 		log.G(ctx).WithError(err).Error("Error reloading configuration")
