@@ -1,0 +1,19 @@
+- 概要
+  - daemon/config は、Docker デーモンの全設定を管理する中核的なパッケージ
+- 内部パッケージ
+  - builder_test.go
+  - builder.go
+    - Builder 関連の設定
+  - config_linux_test.go
+  - config_linux.go
+    - Linux 固有の設定
+    - CommonConfig を埋め込み、Linux 固有の設定を追加
+  - config_test.go
+  - config_windows_test.go
+  - config_windows.go
+    - Windows 固有の設定
+  - config.go
+    - メインの設定構造体とロジック
+    - プラットフォーム共通の設定を保持
+  - opts.go
+    - Generic Resources のパース
