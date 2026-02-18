@@ -220,7 +220,13 @@ Docker の隔離は Linux カーネルの 2 大機能で実現
 ### OCI (Open Container Initiative)
 
 - コンテナ技術の標準仕様を策定する団体
-- Image Spec と Runtime Spec を定義
+- 主な仕様
+  - Image Spec
+    - イメージフォーマット
+  - Runtime Spec
+    - コンテナ実行環境
+  - Distribution Spec
+    - イメージ配布
 
 ### ネットワークプロトコル
 
@@ -253,3 +259,87 @@ Docker の隔離は Linux カーネルの 2 大機能で実現
 - 複数の Docker ホストを 1 つのクラスタとして扱う仕組み
 - 現状ではあまり使われてない
   - Kubernetes に負けた
+
+### containerd
+
+#### Lease
+
+- containerd のガベージコレクションから一時的にリソースを保護する
+- リースを取得している間は、そのコンテンツが削除されない
+- 作業が終わったらリースを解放して、GC 対象に戻す
+- プル/ビルド中に GC が走ると、途中のデータが消える可能性がある
+
+#### Content Store
+
+- コンテンツをダイジェスト(ハッシュ値)でアドレッシングするキーバリューストア
+- 圧縮された「メタデータ」
+
+  例:
+
+```md
+/var/lib/containerd/io.containerd.content.v1.content/
+└── blobs/
+└── sha256/
+├── abc123... (マニフェスト)
+├── def456... (Config)
+└── 789xyz... (レイヤー)
+```
+
+#### Snapshotter
+
+- 実際のファイルシステムレイヤーを管理するコンポーネント
+- 展開された「実ファイルシステム」
+- Snapshot の種類
+  - Active
+    - 読み書き可能
+  - Committed
+    - 読み取り専用
+
+#### Image Store
+
+- イメージのメタデータを管理するデータベース
+- この名前はこのダイジェストを指す
+
+#### Manifest
+
+- 1 つのプラットフォーム用イメージの「設計図」
+- 内容
+  - Config のダイジェスト
+  - Layers のダイジェストリスト
+  - Platform 情報
+- Manifest List / Index
+  - 複数プラットフォームのマニフェストをまとめたもの
+
+#### Descriptor
+
+- コンテンツを参照するためのメタデータ
+
+#### Digest
+
+- コンテンツの SHA256 ハッシュ値
+- 特性
+  - 一意性: 同じ内容なら必ず同じダイジェスト
+  - 整合性検証: データ改ざん検出
+  - 重複排除: 同じダイジェストなら再利用
+
+#### Attestation
+
+- イメージの「証明書」や「来歴情報」
+- 種類
+  - SBOM
+    - Software Bill of Materials
+  - Provenance
+    - ビルドの来歴
+  - Signature
+    - 署名
+
+```md
+ubuntu:latest
+├── Manifest (実際のイメージ)
+└── Attestation Manifest (証明書)
+└── SBOM: このイメージには curl 7.68.0 が含まれる
+```
+
+#### Platform Matcher
+- 実行環境に合ったプラットフォームを選択するロジック
+- 
