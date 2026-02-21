@@ -1,0 +1,31 @@
+- 概要
+  - Docker デーモン内のすべてのイベントを効率的に配信・フィルタリングする
+- 内部構造
+  - testutils
+  - events_test.go
+  - events.go
+    - イベントシステムのコア
+    - Events 構造体
+      - events
+        - 最大 256 件のイベントバッファ
+      - pub
+        - pubsub チャネル
+    - Subscribe
+      - 新しいリスナーを登録
+    - SubscribeTopic
+      - フィルタ付きでイベントを購読
+    - PublishMessage
+      - イベントをすべてのリスナーにブロードキャスト
+      - リングバッファ方式で最新 256 件を保持
+    - Log
+      - イベントを作成して配信するヘルパー関数
+  - filter.go
+    - Include
+      - 以下の条件をすべてチェック
+        - イベントタイプ
+        - スコープ
+        - リソースタイプ別のマッチング
+        - ラベル
+    - matchEvent
+    - matchImage
+      - イメージ ID だけでなく、タグを除いた名前でもマッチング
