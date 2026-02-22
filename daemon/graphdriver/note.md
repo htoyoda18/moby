@@ -1,0 +1,26 @@
+- 概要
+  - Docker がイメージレイヤーを管理するための抽象化層
+  - dockerd がファイルシステムレイヤーを扱うためのインターフェース
+  - レイヤーの作成、マウント、削除、差分処理などを担当
+- 主要ファイル
+  - driver.go - Driver インターフェースの定義と初期化処理
+  - fsdiff.go - ファイルシステムの差分処理
+  - errors.go - エラー定義
+  - utils.go - ユーティリティ関数
+- ドライバー実装
+  - overlay2/ - 標準ストレージドライバー (Linux カーネル 4.0+)
+  - vfs/ - 最もシンプルなドライバー（完全コピー方式）
+  - btrfs/ - Btrfs ファイルシステム用
+  - zfs/ - ZFS ファイルシステム用
+  - fuse-overlayfs/ - rootless モード用
+  - windows/ - Windows コンテナ用
+- サポートディレクトリ
+  - register/ - 各ドライバーの登録（ビルドタグで制御）
+  - overlayutils/ - overlay 関連のユーティリティ
+  - graphtest/ - ドライバーのテストスイート
+  - copy/ - ファイルコピー処理
+- プラットフォーム別実装
+  - driver_linux.go - Linux 固有の優先順位設定
+  - driver_freebsd.go - FreeBSD 用
+  - driver_windows.go - Windows 用
+  - driver_unsupported.go - サポートされていないプラットフォーム用

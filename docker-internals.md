@@ -16,6 +16,7 @@
 イメージは以下の 2 つで構成される:
 
 **1. ファイルシステムのスナップショット**
+
 - アプリケーション実行に必要なすべてのファイル
   - OS の基本ファイル（/bin、/lib など）
   - アプリケーションコード
@@ -23,6 +24,7 @@
   - 設定ファイル
 
 **2. メタデータ**
+
 - 実行時の設定情報
   - デフォルトで実行するコマンド（CMD, ENTRYPOINT）
   - 環境変数（ENV）
@@ -38,8 +40,8 @@ Image (設計図)              Container (実行中のインスタンス)
 │  nginx      │  docker    │  Container  │
 │  Image      │  ─run───>  │  #1         │
 │             │            └─────────────┘
-│ 読み取り専用 │            ┌─────────────┐
-│ テンプレート │  docker    │  Container  │
+│ 読み取り専用  │            ┌─────────────┐
+│ テンプレート  │  docker    │  Container  │
 │             │  ─run───>  │  #2         │
 └─────────────┘            └─────────────┘
                            ↑ 同じImageから何個でも起動可能
@@ -68,21 +70,25 @@ docker run -d --name web3 mynginx
 #### イメージの作成方法
 
 **1. Dockerfile からビルド（最も一般的）**
+
 ```bash
 docker build -t myapp:v1 .
 ```
 
 **2. 実行中のコンテナから作成**
+
 ```bash
 docker commit <container-id> myapp:v2
 ```
 
 **3. tar ファイルからインポート**
+
 ```bash
 docker import myapp.tar myapp:v3
 ```
 
 **4. レジストリから取得**
+
 ```bash
 docker pull nginx:latest
 ```
@@ -90,10 +96,12 @@ docker pull nginx:latest
 #### イメージの特性
 
 - **不変性（Immutable）**
+
   - 一度作成されたイメージは変更されない
   - 変更したい場合は新しいイメージを作る
 
 - **レイヤー構造**
+
   - 複数のレイヤーが積み重なってできている
   - 下層レイヤーは他のイメージと共有可能
 
