@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-ARG GO_VERSION=1.25.7
+ARG GO_VERSION=1.25.8
 ARG BASE_DEBIAN_DISTRO="bookworm"
 ARG GOLANG_IMAGE="golang:${GO_VERSION}-${BASE_DEBIAN_DISTRO}"
 
@@ -24,7 +24,7 @@ ARG DOCKERCLI_INTEGRATION_VERSION=v25.0.5
 ARG BUILDX_VERSION=0.31.1
 
 # COMPOSE_VERSION is the version of compose to install in the dev container.
-ARG COMPOSE_VERSION=v5.0.2
+ARG COMPOSE_VERSION=v5.1.0
 
 ARG SYSTEMD="false"
 ARG FIREWALLD="false"
@@ -148,7 +148,7 @@ RUN git init . && git remote add origin "https://github.com/containerd/container
 # integration tests. The distributed docker .deb and .rpm packages depend on a
 # separate (containerd.io) package, which may be a different version as is
 # specified here.
-ARG CONTAINERD_VERSION=v2.2.1
+ARG CONTAINERD_VERSION=v2.2.2
 RUN git fetch -q --depth 1 origin "${CONTAINERD_VERSION}" +refs/tags/*:refs/tags/* && git checkout -q FETCH_HEAD
 
 FROM base AS containerd-build

@@ -18,9 +18,14 @@ on:
       template:
         required: true
         type: string
+      integration_dir:
+        description: If set, only run integration tests from these directories (space-separated)
+        required: false
+        type: string
+        default: ""
 
 env:
-  GO_VERSION: "1.25.7"
+  GO_VERSION: "1.25.8"
   TESTSTAT_VERSION: v0.1.25
   TEMPLATE_NAME: ${{ inputs.template }}
 
@@ -137,6 +142,7 @@ jobs:
           # TODO: enable GHA cache?
           LIMA_WORKDIR=/tmp/docker lima \
             TEST_SKIP_INTEGRATION_CLI=1 \
+            TEST_INTEGRATION_DIR="${{ inputs.integration_dir }}" \
             TEST_INTEGRATION_USE_GRAPHDRIVER=1 \
             DOCKER_ROOTLESS=${DOCKER_ROOTLESS} \
             DOCKER_GRAPHDRIVER=${DOCKER_GRAPHDRIVER} \
@@ -170,7 +176,7 @@ jobs:
       -
         name: Upload reports
         if: always()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: test-reports-integration-${{ env.TESTREPORTS_NAME }}
           path: /tmp/reports/*
@@ -198,7 +204,7 @@ jobs:
           echo "TESTREPORTS_NAME=${TEMPLATE}*" >> $GITHUB_ENV
       -
         name: Download reports
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           path: /tmp/reports
           pattern: test-reports-integration-${{ env.TESTREPORTS_NAME }}
