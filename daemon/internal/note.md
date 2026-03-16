@@ -1,0 +1,58 @@
+- builder-next
+  - BuildKit ベースの次世代ビルダー
+- capabilities
+  - Linux capabilities の管理
+- cleanups
+  - クリーンアップ処理の合成
+- compat
+  - 互換性関連のユーティリティ
+- containerfs
+  - コンテナファイルシステムの削除操作
+- directory
+  - ディレクトリサイズ計算
+- distribution
+  - イメージの pull/push 処理、レジストリ通信、メタデータ管理
+- filedescriptors
+  - ファイルディスクリプタ管理
+- filters
+  - フィルタリング処理のパース
+- fstype
+  - ファイルシステムタイプの判定
+- idtools
+  - UID/GID マッピングツール
+- image
+  - イメージの管理、キャッシュ、ストア、tar エクスポート
+- ioutils
+  - IO ユーティリティ
+- layer
+  - レイヤーストア、マウント、マイグレーション
+- lazyregexp
+- libcontainerd
+- metrics
+- mountref
+- mounttree
+- multierror
+- netipstringer
+- netiputil
+- nri
+- opts
+- otelutil
+- platform
+- plugin
+- progress
+- quota
+- refstore
+- restartmanager
+- rootless
+- runconfig
+- stack
+- stdcopymux
+- stream
+- streamformatter
+- stringid
+- system
+- timestamp
+- unix_noeintr
+- unshare
+- usergroup
+- versions
