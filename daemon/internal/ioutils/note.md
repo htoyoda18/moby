@@ -1,0 +1,1 @@
+- context.Context によるキャンセルに対応した io.Copy を提供する
