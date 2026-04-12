@@ -1,0 +1,1 @@
+- Linux の unshare(2)システムコールを使い、goroutine を新しい OS thread で実行し、その thread だけでネームスペースを分離する
