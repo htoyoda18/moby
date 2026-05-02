@@ -1,0 +1,28 @@
+- 責務
+  - Docker API の HTTP サーバー層 を実装しており、クライアントからの HTTP リクエストを受け取り、適切なハンドラーにルーティングする
+- 内部実装
+  - backend
+    - サーバー層から daemon への型定義
+  - buildbackend
+    - ビルド機能のバックエンド I/F
+  - httpstatus
+    - エラーから HTTP ステータスコードへの変換
+  - httputils
+    - HTTP 処理のユーティリティ
+  - imagebackend
+    - イメージ操作のバックエンド I/
+  - middleware
+    - HTTP ミドルウェアの実装
+  - networkbackend
+    - ネットワーク管理のバックエンド I/F
+  - router
+    - API エンドポイントのルーティング定義
+  - swarmbackend
+    - Swarm 機能のバックエンド I/F
+  - volumebackend
+    - ボリューム管理のバックエンド I/F
+  - middleware.go
+    - グローバルミドルウェアのラッピング
+  - server_test.go
+  - server.go
+    - HTTP サーバーのコア機能
