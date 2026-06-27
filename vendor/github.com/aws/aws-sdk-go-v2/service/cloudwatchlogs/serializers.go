@@ -7045,6 +7045,11 @@ func awsAwsjson11_serializeDocumentCSV(v *types.CSV, value smithyjson.Value) err
 		ok.String(*v.Delimiter)
 	}
 
+	if v.Destination != nil {
+		ok := object.Key("destination")
+		ok.String(*v.Destination)
+	}
+
 	if v.QuoteCharacter != nil {
 		ok := object.Key("quoteCharacter")
 		ok.String(*v.QuoteCharacter)
@@ -7204,6 +7209,17 @@ func awsAwsjson11_serializeDocumentDeliveryDestinationTypes(v []types.DeliveryDe
 	for i := range v {
 		av := array.Value()
 		av.String(string(v[i]))
+	}
+	return nil
+}
+
+func awsAwsjson11_serializeDocumentDeliverySourceConfiguration(v map[string]string, value smithyjson.Value) error {
+	object := value.Object()
+	defer object.Close()
+
+	for key := range v {
+		om := object.Key(key)
+		om.String(v[key])
 	}
 	return nil
 }
@@ -8320,6 +8336,49 @@ func awsAwsjson11_serializeDocumentSuppressionPeriod(v *types.SuppressionPeriod,
 	return nil
 }
 
+func awsAwsjson11_serializeDocumentTagFilter(v *types.TagFilter, value smithyjson.Value) error {
+	object := value.Object()
+	defer object.Close()
+
+	if v.Key != nil {
+		ok := object.Key("key")
+		ok.String(*v.Key)
+	}
+
+	if v.Values != nil {
+		ok := object.Key("values")
+		if err := awsAwsjson11_serializeDocumentTagFilterValues(v.Values, ok); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func awsAwsjson11_serializeDocumentTagFilters(v []types.TagFilter, value smithyjson.Value) error {
+	array := value.Array()
+	defer array.Close()
+
+	for i := range v {
+		av := array.Value()
+		if err := awsAwsjson11_serializeDocumentTagFilter(&v[i], av); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func awsAwsjson11_serializeDocumentTagFilterValues(v []string, value smithyjson.Value) error {
+	array := value.Array()
+	defer array.Close()
+
+	for i := range v {
+		av := array.Value()
+		av.String(v[i])
+	}
+	return nil
+}
+
 func awsAwsjson11_serializeDocumentTagKeyList(v []string, value smithyjson.Value) error {
 	array := value.Array()
 	defer array.Close()
@@ -8777,6 +8836,11 @@ func awsAwsjson11_serializeOpDocumentCreateScheduledQueryInput(v *CreateSchedule
 		if err := awsAwsjson11_serializeDocumentDestinationConfiguration(v.DestinationConfiguration, ok); err != nil {
 			return err
 		}
+	}
+
+	if v.EndTimeOffset != nil {
+		ok := object.Key("endTimeOffset")
+		ok.Long(*v.EndTimeOffset)
 	}
 
 	if v.ExecutionRoleArn != nil {
@@ -9975,6 +10039,16 @@ func awsAwsjson11_serializeOpDocumentGetQueryResultsInput(v *GetQueryResultsInpu
 	object := value.Object()
 	defer object.Close()
 
+	if v.MaxItems != nil {
+		ok := object.Key("maxItems")
+		ok.Integer(*v.MaxItems)
+	}
+
+	if v.NextToken != nil {
+		ok := object.Key("nextToken")
+		ok.String(*v.NextToken)
+	}
+
 	if v.QueryId != nil {
 		ok := object.Key("queryId")
 		ok.String(*v.QueryId)
@@ -10235,6 +10309,13 @@ func awsAwsjson11_serializeOpDocumentListLogGroupsInput(v *ListLogGroupsInput, v
 		ok.String(*v.LogGroupNamePattern)
 	}
 
+	if v.LogGroupTags != nil {
+		ok := object.Key("logGroupTags")
+		if err := awsAwsjson11_serializeDocumentTagFilters(v.LogGroupTags, ok); err != nil {
+			return err
+		}
+	}
+
 	if v.NextToken != nil {
 		ok := object.Key("nextToken")
 		ok.String(*v.NextToken)
@@ -10255,6 +10336,11 @@ func awsAwsjson11_serializeOpDocumentListScheduledQueriesInput(v *ListScheduledQ
 	if v.NextToken != nil {
 		ok := object.Key("nextToken")
 		ok.String(*v.NextToken)
+	}
+
+	if len(v.ScheduleType) > 0 {
+		ok := object.Key("scheduleType")
+		ok.String(string(v.ScheduleType))
 	}
 
 	if len(v.State) > 0 {
@@ -10433,6 +10519,13 @@ func awsAwsjson11_serializeOpDocumentPutDeliveryDestinationPolicyInput(v *PutDel
 func awsAwsjson11_serializeOpDocumentPutDeliverySourceInput(v *PutDeliverySourceInput, value smithyjson.Value) error {
 	object := value.Object()
 	defer object.Close()
+
+	if v.DeliverySourceConfiguration != nil {
+		ok := object.Key("deliverySourceConfiguration")
+		if err := awsAwsjson11_serializeDocumentDeliverySourceConfiguration(v.DeliverySourceConfiguration, ok); err != nil {
+			return err
+		}
+	}
 
 	if v.LogType != nil {
 		ok := object.Key("logType")
@@ -11168,6 +11261,11 @@ func awsAwsjson11_serializeOpDocumentUpdateScheduledQueryInput(v *UpdateSchedule
 		if err := awsAwsjson11_serializeDocumentDestinationConfiguration(v.DestinationConfiguration, ok); err != nil {
 			return err
 		}
+	}
+
+	if v.EndTimeOffset != nil {
+		ok := object.Key("endTimeOffset")
+		ok.Long(*v.EndTimeOffset)
 	}
 
 	if v.ExecutionRoleArn != nil {
