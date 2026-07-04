@@ -51,3 +51,40 @@
 ### `daemon/container.go:144`
 
 `Container.Args` は `Config.Entrypoint` と `Config.Cmd` から導出される派生データなのに独立フィールドとして重複保持されており、設計上の負債になっている。
+
+### `daemon/create_windows.go:45`
+
+Linux版には「コンテナ起動前にコンテナFSへVOLUMEディレクトリの内容をコピーする」処理があるが、Windows版では利用している `FollowSymLinkInScope` がWindowsのボリューム形式パス（例: `c:\myvol`）に対応していないためスキップされている。`@swernli` による別途対応が予定されており暫定的に除外。TP5時点ではHCSがコンテンツ入りマップドディレクトリを非サポートなため実害は限定的。
+
+### `daemon/daemon_linux.go:151`
+
+`setupResolvConf` 内で `resolvconf.Path()` を呼ぶ際、libnetwork 内の `internal/resolvconf.Path` が使えず（`internal` パッケージのため）、外部パッケージ `github.com/moby/moby/v2/vendor/...` の同名関数に頼っている。libnetwork の `internal` を外部公開するか、パッケージ構造を整理することで解消できる。
+
+### `daemon/devices_nvidia_linux.go:147`
+
+NVIDIAコンテナランタイムフックを `Prestart` フックとして登録しているが、`Prestart` はOCI仕様で非推奨。`CreateRuntime` フックが最も近い代替だが、フックの具体的な処理内容によっては `CreateContainer` や `StartContainer` が適切な可能性もあるため、調査・移行が保留されている。
+
+### `daemon/exec_linux_test.go:43`
+
+`execSetPlatformOpts` において、コンテナに `--privileged` が設定されていてもカスタムAppArmorプロファイルが指定されていると後者が優先される挙動がある。`--privileged` はAppArmor・seccomp・SELinuxをすべて無効化すべきであり、これはバグの可能性が高い。問題箇所: `daemon/exec_linux.go:32-40`。テスト内の `expectedProfile: unconfinedAppArmorProfile` はこのバグが修正されるまでコメントアウトされたまま。
+修正自体は簡単だが、合意形成が難しい。
+
+### `daemon/health_test.go:47`
+
+`TestHealthStates` の実行に約3秒かかっており、ユニットテストとして許容できない時間がかかっている。主因は `CommitInMemory` が JSON encode/decode で `Container` 全体をディープコピーしていること（10回呼ばれる）。詳細: `fixme-detail-daemon-health-exec.md`。
+
+### `daemon/mounts.go:32`
+
+`prepareMountPoints` では `config.Volume == nil`（ボリュームマウントでない）の場合に処理をスキップしている。ただしバインドマウントや tmpfs も `Volume == nil` になるため、`config.Type` を追加確認してバインドマウント等を明示的に除外すべきかが問われている。現状でも `LiveRestore` が呼ばれないだけで実害は限定的だが、意図が不明瞭なまま。
+
+### `daemon/oci_linux.go:258` / `:301` / `:337`
+
+同一の問題が net / IPC / PID 名前空間の3箇所に存在する。`--network container:A` かつ `--ipc container:B` のように複数コンテナの名前空間を同時に共有する場合、ユーザー名前空間のパスが後から処理されるコンテナの PID で**上書き**される。例: ネットNS共有でコンテナAのユーザーNSパスを設定後、IPCのNS共有でコンテナBのユーザーNSパスに上書きされ、最終的な名前空間構成が不整合になる可能性がある。Issue [#46210](https://github.com/moby/moby/issues/46210) で追跡中。
+
+### `daemon/oci_windows.go:368`
+
+Windows の `credentialspec` セキュリティオプション処理でキー名の比較に `strings.EqualFold` を使っており、大文字小文字を区別しない（`CREDENTIALSPEC`・`CredentialSpec`・`credentialspec` がすべて受け入れられる）。他のセキュリティオプションは大文字小文字を区別するため一貫性がなく、意図しないオプション名の受け入れにつながる。
+
+### `daemon/runtime_unix.go:273`
+
+`isPermissibleC8dRuntimeName` 内でランタイム名の検証ロジック（`.` を含むか、絶対パスでないかなど）を手書きで実装しているが、これは containerd の内部実装を複製したもの。本来は containerd モジュール側のユーティリティを使いたいが、該当の `shim.BinaryName` は `shim` パッケージに属しており依存関係が大量についてくるため直接利用できない。containerd 側で検証ロジックを独立したパッケージに切り出してもらう必要がある。
