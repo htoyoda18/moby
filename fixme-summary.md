@@ -88,3 +88,31 @@ Windows の `credentialspec` セキュリティオプション処理でキー名
 ### `daemon/runtime_unix.go:273`
 
 `isPermissibleC8dRuntimeName` 内でランタイム名の検証ロジック（`.` を含むか、絶対パスでないかなど）を手書きで実装しているが、これは containerd の内部実装を複製したもの。本来は containerd モジュール側のユーティリティを使いたいが、該当の `shim.BinaryName` は `shim` パッケージに属しており依存関係が大量についてくるため直接利用できない。containerd 側で検証ロジックを独立したパッケージに切り出してもらう必要がある。
+
+### `daemon/start.go:286`
+
+`conditionalUnmountOnCleanup` が失敗した場合のフォールバックとして、graphdriver のマウントを ID で直接クリーンアップしている。コメントによれば「graphdriver の参照カウントがリファクタリングされたら削除する」とのこと。containerd ベースのストレージへの移行が進めば不要になる暫定的なワークアラウンド。
+
+### `daemon/stats_collector.go:16`
+
+`newStatsCollector` の中で Linux の `machineMemory`（物理メモリ量）の初期化を行っているが、本来この処理は統計コレクターの生成とは無関係なため別の場所（デーモン初期化時など）に移すべき。関心の分離が不十分な設計上の問題。
+
+### `daemon/stats.go:121`
+
+`GetContainerStats` 内でシステム全体の CPU 使用量を `getSystemCPUUsage()` で取得しているが、Linux では containerd 側に移管すべきとのコメントがある。Windows は HCS から直接ネットワーク統計を取得するため対象外。containerd との統合が進んだ段階での改善項目。
+
+### `daemon/top_unix_test.go:21`
+
+`validatePSArgs` は `ps` の引数中に `=PID...` というパターン（値が "PID" で始まるカラム指定）を禁止している。これは `pid=PID` のような PID カラムの直接指定を弾くための正規表現だが、`uid=PIDX` のような無害な指定（値がたまたま "PID" で始まるだけ）も巻き込んでエラーにしてしまう。テストケース `"ae -o pid=PID -o uid=PIDX": true` にコメントで「本来は禁止しなくてよい」と記されている。正規表現 `psArgsRegexp` の精度が不十分。
+
+### `daemon/command/daemon.go:661`
+
+Windows では設定ファイルのデフォルトパスが `--data-root` に依存しており、`data-root` が変更されると設定ファイルのパスも変わってしまう。`"daemon.json"` という固定ファイル名と可変の `--data-root` に依存しない、より安定したデフォルトパスが必要とされているが、Windows 固有のパス規約上の代替が見つかっていない。
+
+### `daemon/command/daemon.go:1100`
+
+`--raw-logs` オプションによる ANSI カラー無効化の実装が、containerd のログパッケージ内部の `*logrus.TextFormatter` に型アサートして直接 `DisableColors` フィールドを書き換えるという脆い方法に依存している。containerd のログパッケージがカラー制御 API を公開していないため、内部実装に依存せざるを得ない状態。
+
+### `daemon/command/docker.go:19`
+
+`newDaemonCommand` が呼ばれると必ず `config.New()` が実行され、バイナリパスの探索など重い初期化が走る。`dockerd --version` だけを実行したい場合でも同様で、バージョン表示に不要な処理が含まれている。バージョン出力とデーモン設定の初期化を分離する必要がある。
