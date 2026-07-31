@@ -116,3 +116,27 @@ Windows では設定ファイルのデフォルトパスが `--data-root` に依
 ### `daemon/command/docker.go:19`
 
 `newDaemonCommand` が呼ばれると必ず `config.New()` が実行され、バイナリパスの探索など重い初期化が走る。`dockerd --version` だけを実行したい場合でも同様で、バージョン表示に不要な処理が含まれている。バージョン出力とデーモン設定の初期化を分離する必要がある。
+
+### `daemon/config/config.go:305`
+
+`ValuesSet map[string]any` は CLI フラグ由来の情報を保持するためのフィールドだが、これがどのフラグに由来しどう使われるかが `config` パッケージの責務としては不明瞭。コメントでは「本来はこのパッケージの外で扱うべき」とされているが、具体的な分離方法は示されていない。
+
+### `daemon/config/config.go:776`
+
+`validateDaemonLogConfig` でのログレベル検証が、containerd の `log` パッケージ内部の実装知識（有効なログレベルの一覧）に依存したハードコードの `switch` になっている。`log.SetLevel` を試して例外時にロールバックする代替案も検討されているが、これも内部知識に依存するため根本解決には至っていない。
+
+### `daemon/graphdriver/windows/windows.go:924`
+
+`parseStorageOpt` で `storage-opt` の `size` キーを `strings.EqualFold` で大文字小文字を区別せずに一致させている。他のオプションと一貫性がなく、本来は大文字小文字を区別すべきだとされている。
+
+### `daemon/images/image_unix.go:39`
+
+`GetContainerLayerSize` 内で `rwlayer.Size()` がエラーを返した場合、`sizeRw` を `-1` にして握りつぶしている。本来は `GetSize` 自体がエラーを返すインターフェースにすべきだが、既存の呼び出し元への副作用を懸念して変更されていない。
+
+### `daemon/images/image_windows.go:23`
+
+`GetLayerFolders` のループ内で `img.RootFS.DiffIDs = img.RootFS.DiffIDs[:index]` と、引数として渡された `img`（ポインタ）のフィールドを直接書き換えている。ループを抜けた後も `img.RootFS.DiffIDs` は最後の `index` でスライスされたまま残るため、呼び出し元が同じ `img` を後続処理で再利用する場合に意図しない副作用を及ぼす可能性がある。
+
+### `daemon/internal/distribution/errors.go:93` / `:122`
+
+`translatePullError` と `continueOnError` の両方に同一の FIXME コメントがあり、「このパッケージ全体のエラー・コンテキストハンドリングが煩雑（messy）なので整理が必要」とされている。具体的な整理方針は示されておらず、大規模なリファクタリングが必要な設計負債として保留されている。
