@@ -1,0 +1,35 @@
+- 概要
+  - BuildKit の設定を管理するファイル
+- 詳細
+  - BuilderGCRule
+    - GC ルールの定義
+  - BuilderGCFilter
+    - フィルター条件
+  - MarshalJSON
+    - フィルターを key=value 形式の配列に変換
+    - キーをソートして決定的な出力を保証
+  - UnmarshalJSON
+    - まず配列形式でパースを試みる
+    - 失敗したら古いオブジェクト形式でパース
+  - BuilderGCConfig
+    - GC 全体の設定
+    - Enabled
+      - GC の有効/無効
+    - Policy
+      - GC ポリシーのリスト
+    - DefaultReservedSpace
+      - デフォルトの確保容量
+    - DefaultMaxUsedSpace
+      - デフォルトの最大使用容量
+    - DefaultMinFreeSpace
+      - デフォルトの最小空き容量
+  - BuilderHistoryConfig
+    - ビルド履歴の設定
+    - MaxAge
+      - 最大保持期間
+    - MaxEntries
+      - 最大保持件数
+  - BuilderEntitlements
+    - 特権機能の制御
+  - BuilderConfig
+    - 最上位の設定

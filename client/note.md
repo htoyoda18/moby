@@ -1,0 +1,24 @@
+- 概要
+  - Docker API クライアントライブラリの実装
+  - Docker Engine との通信を担当
+  - Docker の Go クライアント SDK
+- 提供される API 機能
+  - コンテナ操作
+  - イメージ操作
+  - ネットワーク管理
+  - ボリューム管理
+  - Swarm 管理
+  - プラグイン管理
+- 内部構造
+  - internal
+    - 内部実装
+  - pkg
+    - 公開ユーティリティパッケージ
+  - client.go
+    - コアクライアント実装
+  - client_interfaces.go
+    - API インターフェース定義
+  - request.go
+    - HTTP 通信
+  - errors.go
+    - エラー処理

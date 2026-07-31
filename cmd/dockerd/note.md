@@ -1,0 +1,6 @@
+- winresources
+  - Windows リソース
+- main_windows.go
+  - Windows 固有の設定
+- main.go
+  - エントリーポイント

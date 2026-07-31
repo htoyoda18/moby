@@ -1,0 +1,49 @@
+- 概要
+  - ビルド API のエントリーポイント
+- 全体の処理の流れ
+  - API Request (POST /build)
+  - Backend.Build()
+  - タグのサニタイズ
+  - ビルダー選択
+  - Squash 処理（オプション）
+  - タグ付け（従来ビルダーのみ）
+  - imageID を返す
+- backend.go
+  - メインのビルドルーター
+  - 内部構造
+    - Backend 構造体
+      - builder
+        - 従来の Dockerfile ビルダー
+      - imageComponent
+        - イメージ操作
+      - buildkit
+        - BuildKit 実装
+      - eventsService
+        - イベント発行
+    - Build メソッド
+      - ビルダー選択
+        - BuildKit or Dockerfile ビルダー
+      - Squash 処理
+        - Squash とは？
+          - 複数のレイヤーを 1 つに圧縮する機能
+          - docker build --squash オプションで有効化
+          - ベースイメージ以降のすべての変更を 1 レイヤーにまとめる
+      - タグ付けと出力
+    - squashBuild
+    - PruneCache
+      - docker builder prune コマンドの実装
+      - BuildKit のキャッシュのみを削除
+    - Cancel
+      - ビルドを ID で中断
+- tag.go
+  - イメージタグ処理
+  - 内部構造
+    - tagImages
+      - 各タグに対してループ
+      - ic.TagImage() でイメージにタグを付与
+      - Successfully tagged myimage:latest を出力
+    - sanitizeRepoAndTags
+      - パース
+      - ダイジェスト形式を拒否
+      - タグがなければ `:latest` を追加
+      - 重複を除外

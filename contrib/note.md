@@ -1,0 +1,33 @@
+- 概要
+  - Docker のコアディストリビューションには含まれないが、役立つスクリプトやツール
+- 内部構成
+  - apparmor
+    - AppArmor プロファイル生成ツール
+  - busybox
+    - BusyBox イメージ作成用
+  - init
+    - 各種 init システム用の設定ファイル
+  - nnp-test
+    - No New Privileges 機能のテスト
+  - otel
+    - OpenTelemetry 統合のサンプル
+  - selinux
+    - SELinux ポリシー
+  - syscall-test
+    - システムコールのテストプログラム集
+  - systemd-sysusers
+    - systemd-sysusers 設定
+  - wireshark
+    - Wireshark 用の Lua プラグイン
+  - check-config.sh
+    - システムが Docker を実行するための要件を満たしているかチェック
+  - dockerd-rootless-setuptool.sh
+    - Rootless モードのセットアップツール
+  - dockerd-rootless.sh
+    - Rootless Docker デーモン起動スクリプト
+  - dockerize-disk.sh
+    - ディスクイメージの Docker 化
+  - download-frozen-image-v2.sh
+    - Docker Hub から凍結イメージをダウンロード
+  - nuke-graph-directory.sh
+    - Docker のグラフディレクトリを削除するユーティリティ

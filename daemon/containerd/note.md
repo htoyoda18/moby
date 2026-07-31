@@ -1,0 +1,76 @@
+- 責務
+  - containerd を使ったイメージ管理のラッパー実装
+  - Docker デーモンと containerd の橋渡し
+- 内部構造
+  - migration
+  - cache.go
+    - キャッシュ管理
+  - fake_service_test.go
+  - handlers.go
+  - image_builder.go
+  - image_changes.go
+  - image_children.go
+  - image_commit.go
+  - image_delete_test.go
+  - image_delete.go
+    - 削除操作
+  - image_events.go
+  - image_exporter.go
+    - tarへのエクスポート
+  - image_history.go
+  - image_import_test.go
+  - image_import.go
+    - tarからのインポート
+  - image_inspect_test.go
+  - image_inspect.go
+  - image_list_test.go
+  - image_list.go
+    - イメージ一覧取得
+  - image_load_test.go
+  - image_manifest.go
+    - 個別のプラットフォーム用マニフェストを表現
+  - image_prune.go
+    - 未使用イメージの削除
+  - image_pull.go
+    - プル操作
+  - image_push_test.go
+  - image_push.go
+    - プッシュ操作
+  - image_save_test.go
+  - image_snapshot_unix.go
+  - image_snapshot_windows.go
+  - image_snapshot.go
+  - image_squash.go
+  - image_tag.go
+  - image_test.go
+  - image.go
+    - イメージ解決
+  - imagespec.go
+  - leases.go
+    - containerd のリース機構を使用
+  - note.md
+  - platform_matchers_test.go
+  - platform_matchers.go
+  - progress.go
+  - registry_errors.go
+  - resolver.go
+  - service_unix.go
+  - service_windows.go
+  - service.go
+    - ImageService
+      - containerd ベースのイメージ管理の中核
+      - client
+        - containerd クライアント
+      - images
+        - containerd のイメージストア
+      - content
+        - Content Store
+      - snapshotterServices
+        - スナップショッター
+      - containers
+        - コンテナストア
+      - registryHosts
+        - レジストリとの通信設定
+  - soft_delete.go
+  - store.go
+    - cross-repo mount の最適化

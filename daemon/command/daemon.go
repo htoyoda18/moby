@@ -285,6 +285,8 @@ func (cli *daemonCLI) start(ctx context.Context) (retErr error) {
 		cdiCache = daemon.RegisterCDIDriver(cli.Config.CDISpecDirs...)
 	}
 
+	daemon.RegisterGPUDeviceDrivers(cdiCache)
+
 	var apiServer apiserver.Server
 	authz, err := initMiddlewares(ctx, &apiServer, cli.Config, pluginStore)
 	if err != nil {
@@ -549,6 +551,13 @@ func (cli *daemonCLI) reloadConfig() {
 			}
 		}
 	}
+
+	// On Linux, we use sd_notify to indicate we're reloading config. We send
+	// this signal as early as possible to let systemd know we're reloading,
+	// but must signal "ready" after this completes (even on failure), which
+	// is done by the reload function defined above.
+	done := notifyReloading()
+	defer done()
 
 	if err := config.Reload(*cli.configFile, cli.flags, reload); err != nil {
 		log.G(ctx).WithError(err).Error("Error reloading configuration")

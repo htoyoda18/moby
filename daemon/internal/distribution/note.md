@@ -1,0 +1,40 @@
+- 概要
+  - Docker イメージの pull / push をレジストリとの間で行うコア実装
+  - かなり大きなパッケージで、サブパッケージも含む
+- 内部構造
+  - metadata
+    - distribution 固有のメタデータ
+  - utils
+    - プログレス表示のユーティリティ
+  - xfer
+    - レイヤーの ダウンロード/アップロードの並行制御
+  - config.go
+    - Pull/Push の設定構造体
+    - ImageConfigStore, PushLayer 等のインターフェース定義
+  - errors_test.go
+  - errors.go
+    - エラー型の定義と、エラーの変換ロジック
+  - manifest_test.go
+  - manifest.go
+    - マニフェストのローカルキャッシュ
+    - リモートの両方からマニフェストを取得・永続化
+  - note.md
+  - pull_v2_test.go
+  - pull_v2_unix.go
+  - pull_v2_windows.go
+  - pull_v2.go
+    - v2 レジストリプロトコルでの pull の具体的な実装
+  - pull.go
+    - イメージの pull を実行
+  - push_v2_test.go
+  - push_v2.go
+    - v2 レジストリプロトコルでの pull の具体的な実装
+  - push.go
+    - イメージの push を実行
+  - registry_unit_test.go
+  - registry.go
+    - レジストリへの HTTP 接続を確立
+  - repository.go
+    - 指定された参照に対応するリポジトリの一覧を取得
+  - transport.go
+    - HTTP トランスポートに OpenTelemetry のトレーシングを付加

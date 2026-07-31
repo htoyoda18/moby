@@ -1,0 +1,28 @@
+- 概要
+  - Docker の docker build コマンドを BuildKit バックエンドで実行する
+  - Docker daemon 固有のストレージと BuildKit を橋渡しする「アダプタ」群で構成
+- 内部構成
+  - adapters
+    - アダプタ
+  - exporter
+    - エクスポーター
+  - imagerefchecker
+    - イメージ参照チェッカー
+  - worker
+    - Worker 実装
+  - builder.go
+    - エントリーポイント: Builder 構造体
+  - controller.go
+    - BuildKit の control.Controller を生成
+  - executor_linux.go
+    - Linux 用 Executor 実装
+  - executor_nolinux.go
+  - executor_opts.go
+    - Executor のオプション定義
+  - executor_others.go
+  - executor_windows.go
+    - Windows 用 Executor 実装
+  - executor.go
+    - ビルドステップ実行用ネットワーク（bridge）管理
+  - reqbodyhandler.go
+    - ビルドコンテキストの HTTP 経由受け渡し

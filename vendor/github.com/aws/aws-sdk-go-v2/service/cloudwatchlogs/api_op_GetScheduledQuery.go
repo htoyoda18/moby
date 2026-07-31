@@ -49,6 +49,10 @@ type GetScheduledQueryOutput struct {
 	// Configuration for where query results are delivered.
 	DestinationConfiguration *types.DestinationConfiguration
 
+	// The time offset in seconds that defines the end of the lookback period for the
+	// query.
+	EndTimeOffset *int64
+
 	// The ARN of the IAM role used to execute the query and deliver results.
 	ExecutionRoleArn *string
 
@@ -81,6 +85,10 @@ type GetScheduledQueryOutput struct {
 
 	// The start time for the scheduled query in Unix epoch format.
 	ScheduleStartTime *int64
+
+	// The schedule type of the scheduled query. Valid values are CUSTOMER_MANAGED and
+	// AWS_MANAGED .
+	ScheduleType types.ScheduleType
 
 	// The ARN of the scheduled query.
 	ScheduledQueryArn *string
@@ -134,7 +142,7 @@ func (c *Client) addOperationGetScheduledQueryMiddlewares(stack *middleware.Stac
 	if err = addComputePayloadSHA256(stack); err != nil {
 		return err
 	}
-	if err = addRetry(stack, options); err != nil {
+	if err = addRetry(stack, options, c); err != nil {
 		return err
 	}
 	if err = addRawResponseToMetadata(stack); err != nil {
@@ -156,9 +164,6 @@ func (c *Client) addOperationGetScheduledQueryMiddlewares(stack *middleware.Stac
 		return err
 	}
 	if err = addSetLegacyContextSigningOptionsMiddleware(stack); err != nil {
-		return err
-	}
-	if err = addTimeOffsetBuild(stack, c); err != nil {
 		return err
 	}
 	if err = addUserAgentRetryMode(stack, options); err != nil {

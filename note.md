@@ -1,0 +1,115 @@
+- このプロジェクトについて
+  - Moby Project
+  - Docker によって作成されたコンテナ技術の基盤となるオープンソースプロジェクト
+- 主要機能 https://chatgpt.com/c/6975b4c8-0438-83aa-b23a-7e03eb3ba9ac
+  - コンテナ管理
+    - ライフサイクル管理、実行、停止
+  - イメージ管理
+    - pull、push、build、inspect
+  - ネットワーキング
+    - bridge、overlay、host、macvlan 等のドライバ
+  - ストレージ
+    - overlay2 などのグラフドライバ、ボリューム管理
+  - オーケストレーション
+    - Swarm によるクラスタ管理
+  - セキュリティ
+    - AppArmor、Seccomp、SELinux、rootless モード
+- プロジェクト構造
+  - .devcontainer
+    - VSCode の Dev Container 設定
+  - .git
+    - Git リポジトリのメタデータ
+  - .github
+    - GitHub 固有の設定
+    - CI/CD ワークフロー
+  - api
+    - Engine API の型定義と Swagger 仕様
+    - クライアント/サーバー間の共有インターフェース
+  - client
+    - Docker CLI が使用する Go クライアントライブラリ
+    - サードパーティプログラムからの利用も可能
+    - API との通信を抽象化
+  - cmd
+    - メインパッケージ(エントリポイント)
+  - contrib
+    - 外部ツールやライブラリ関連のファイル
+    - パッケージング、設定ファイル例
+  - daemon
+    - Docker デーモンの中核実装
+    - コンテナ、イメージ、ネットワーク、ボリューム管理
+  - dockerversion
+    - バージョン管理・バージョン情報
+  - docs
+    - Moby 技術ドキュメント
+    - 448 個の Markdown ファイル
+  - errdefs
+    - エラー定義とエラーハンドリング
+    - 統一されたエラー型
+  - hack
+    - テスト、開発、CI 用のスクリプト集
+    - ビルドヘルパー、ユーティリティ
+  - integration
+    - 推奨される統合テスト
+    - API、クライアント、デーモンのテスト
+  - integration-cli
+    - 非推奨の統合テスト
+  - internal
+    - 外部からのインポートを防ぐ内部パッケージ
+    - Moby 内部でのみ使用される実装
+  - man
+    - man コマンド用のリファレンスマニュアル
+    - Unix 標準のマニュアルページ
+  - pkg
+    - Moby 固有でない汎用ユーティリティ
+  - project
+    - プロジェクトガバナンス関連
+  - releases
+    - リリース関連の情報・スクリプト
+  - vendor
+    - make vendor で自動生成
+  - .codecov.yml
+    - Codecov のコードカバレッジ設定
+  - .dockerignore
+    - Docker ビルド時に除外するファイル指定
+  - .gitattributes
+    - Git のファイルタイプハンドリングルール
+  - .gitignore
+    - Git で追跡しないファイル指定
+  - .golangci.yml
+    - Go 言語の linter 設定
+  - .mailmap
+    - Git コントリビューターの重複メール管理
+  - AUTHORS
+    - 自動生成されたコントリビューターリスト
+  - CONTRIBUTING.md
+    - コントリビューターガイド
+  - docker-bake.hcl
+    - Docker Bake の定義ファイル
+  - Dockerfile
+    - メインのビルド用 Dockerfile
+  - Dockerfile.simple
+    - 最小限のビルド・テスト用 Dockerfile
+  - Dockerfile.windows
+    - Windows Server 2016/Windows 10 用 Dockerfile
+  - go.mod
+    - Go モジュール定義
+  - go.sum
+    - Go 依存関係のチェックサム
+  - LICENSE
+    - Apache License 2.0 全文
+  - MAINTAINERS
+    - 現在のメンテナーリスト
+  - Makefile
+    - ビルドオーケストレーション
+  - NOTICE
+    - 法的通知
+  - otelcol-ci-config.yml
+    - OpenTelemetry Collector 設定
+  - README.md
+    - プロジェクトの概要説明
+  - ROADMAP.md
+    - プロジェクトの方向性とロードマップ
+  - SECURITY.md
+    - セキュリティポリシー
+  - TESTING.md
+    - テスト戦略とガイドライン

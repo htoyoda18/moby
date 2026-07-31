@@ -44,6 +44,8 @@ const (
 	DefaultNetworkMtu = 1500
 	// DisableNetworkBridge is the default value of the option to disable network bridge
 	DisableNetworkBridge = "none"
+	// DefaultLogDriver is the default log-driver.
+	DefaultLogDriver = "json-file"
 	// DefaultShutdownTimeout is the default shutdown timeout (in seconds) for
 	// the daemon for containers to stop when it is shutting down.
 	DefaultShutdownTimeout = 15
@@ -59,12 +61,12 @@ const (
 	// MaxAPIVersion is the highest REST API version supported by the daemon.
 	//
 	// This version may be lower than the version of the api library module used.
-	MaxAPIVersion = "1.53"
+	MaxAPIVersion = "1.55"
 	// defaultMinAPIVersion is the minimum API version supported by the API.
 	// This version can be overridden through the "DOCKER_MIN_API_VERSION"
 	// environment variable. The minimum allowed version is determined
 	// by [MinAPIVersion].
-	defaultMinAPIVersion = "1.44"
+	defaultMinAPIVersion = "1.40"
 	// MinAPIVersion is the minimum API version supported by the daemon.
 	MinAPIVersion = "1.24"
 	// SeccompProfileDefault is the built-in default seccomp profile.
@@ -153,7 +155,7 @@ type commonBridgeConfig struct {
 // NetworkConfig stores the daemon-wide networking configurations
 type NetworkConfig struct {
 	// Default address pools for docker networks
-	DefaultAddressPools opts.PoolsOpt `json:"default-address-pools,omitempty"`
+	DefaultAddressPools opts.PoolsOpt `json:"default-address-pools"`
 	// NetworkControlPlaneMTU allows to specify the control plane MTU, this will allow to optimize the network use in some components
 	NetworkControlPlaneMTU int `json:"network-control-plane-mtu,omitempty"`
 	// Default options for newly created networks
@@ -276,7 +278,7 @@ type CommonConfig struct {
 	// If a certain feature doesn't appear in this list then it's unset (i.e. neither true nor false).
 	Features map[string]bool `json:"features,omitempty"`
 
-	Builder BuilderConfig `json:"builder,omitempty"`
+	Builder BuilderConfig `json:"builder"`
 
 	ContainerdNamespace       string `json:"containerd-namespace,omitempty"`
 	ContainerdPluginNamespace string `json:"containerd-plugin-namespace,omitempty"`
@@ -287,7 +289,7 @@ type CommonConfig struct {
 	CDISpecDirs []string `json:"cdi-spec-dirs,omitempty"`
 
 	// NRIOpts defines configuration for NRI (Node Resource Interface).
-	NRIOpts opts.NRIOpts `json:"nri-opts,omitempty"`
+	NRIOpts opts.NRIOpts `json:"nri-opts"`
 
 	// The minimum API version provided by the daemon. Defaults to [defaultMinAPIVersion].
 	//
@@ -336,6 +338,7 @@ func New() (*Config, error) {
 		CommonConfig: CommonConfig{
 			ShutdownTimeout: DefaultShutdownTimeout,
 			LogConfig: LogConfig{
+				Type:   DefaultLogDriver,
 				Config: make(map[string]string),
 			},
 			DaemonLogConfig: DaemonLogConfig{

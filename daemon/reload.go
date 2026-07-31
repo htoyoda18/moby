@@ -24,7 +24,7 @@ func init() {
 	//
 	// Note: copystructure is archived (https://github.com/mitchellh/copystructure)
 	// and won't receive upstream fixes for this limitation.
-	copystructure.Copiers[reflect.TypeOf(netip.Addr{})] = func(v any) (any, error) {
+	copystructure.Copiers[reflect.TypeFor[netip.Addr]()] = func(v any) (any, error) {
 		return v.(netip.Addr), nil
 	}
 }
@@ -131,8 +131,9 @@ func (daemon *Daemon) Reload(conf *config.Config) error {
 	}
 
 	daemon.configStore.Store(newCfg)
+	err = txn.Commit()
 	daemon.LogDaemonEventWithAttributes(events.ActionReload, attributes)
-	return txn.Commit()
+	return err
 }
 
 func marshalAttributeSlice(v []string) string {

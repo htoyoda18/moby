@@ -36,6 +36,11 @@ type ListScheduledQueriesInput struct {
 	// The token for the next set of items to return. The token expires after 24 hours.
 	NextToken *string
 
+	// Filter scheduled queries by schedule type. Valid values are CUSTOMER_MANAGED
+	// and AWS_MANAGED . If not specified, scheduled queries of all schedule types are
+	// returned.
+	ScheduleType types.ScheduleType
+
 	// Filter scheduled queries by state. Valid values are ENABLED and DISABLED . If
 	// not specified, all scheduled queries are returned.
 	State types.ScheduledQueryState
@@ -91,7 +96,7 @@ func (c *Client) addOperationListScheduledQueriesMiddlewares(stack *middleware.S
 	if err = addComputePayloadSHA256(stack); err != nil {
 		return err
 	}
-	if err = addRetry(stack, options); err != nil {
+	if err = addRetry(stack, options, c); err != nil {
 		return err
 	}
 	if err = addRawResponseToMetadata(stack); err != nil {
@@ -113,9 +118,6 @@ func (c *Client) addOperationListScheduledQueriesMiddlewares(stack *middleware.S
 		return err
 	}
 	if err = addSetLegacyContextSigningOptionsMiddleware(stack); err != nil {
-		return err
-	}
-	if err = addTimeOffsetBuild(stack, c); err != nil {
 		return err
 	}
 	if err = addUserAgentRetryMode(stack, options); err != nil {

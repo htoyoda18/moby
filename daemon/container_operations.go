@@ -74,10 +74,10 @@ func buildSandboxOptions(cfg *config.Config, ctr *container.Container) ([]libnet
 	}
 
 	for _, extraHost := range ctr.HostConfig.ExtraHosts {
-		// allow IPv6 addresses in extra hosts; only split on first ":"
 		if _, err := opts.ValidateExtraHost(extraHost); err != nil {
 			return nil, err
 		}
+		// allow IPv6 addresses in extra hosts; only split on first ":"
 		host, ip, _ := strings.Cut(extraHost, ":")
 		// If the IP Address is the literal string "host-gateway", replace this
 		// value with the IP address(es) stored in the daemon level HostGatewayIP
@@ -90,7 +90,21 @@ func buildSandboxOptions(cfg *config.Config, ctr *container.Container) ([]libnet
 				sboxOptions = append(sboxOptions, libnetwork.OptionExtraHost(host, gip.Unmap()))
 			}
 		} else {
-			sboxOptions = append(sboxOptions, libnetwork.OptionExtraHost(host, netip.MustParseAddr(ip).Unmap()))
+			if ipAddr, err := netip.ParseAddr(ip); err != nil {
+				// Value should already be validated if we arrive here, but
+				// handle invalid IP-addresses gracefully: they may be part
+				// of an existing container-config created by docker < v29.0.0.
+				//
+				// See https://github.com/moby/moby/issues/52274
+				// See https://github.com/moby/moby/pull/50956
+				log.G(context.TODO()).WithFields(log.Fields{
+					"error":      err,
+					"extra_host": extraHost,
+					"container":  ctr.ID,
+				}).Warn("buildSandboxOptions: failed to parse IP address for extra hosts")
+			} else {
+				sboxOptions = append(sboxOptions, libnetwork.OptionExtraHost(host, ipAddr.Unmap()))
+			}
 		}
 	}
 
@@ -191,7 +205,8 @@ func (daemon *Daemon) updateNetworkSettings(ctr *container.Container, n *libnetw
 	}
 
 	ctr.NetworkSettings.Networks[n.Name()] = &network.EndpointSettings{
-		EndpointSettings: endpointConfig,
+		EndpointSettings:  endpointConfig,
+		DesiredMacAddress: endpointConfig.MacAddress,
 	}
 
 	return nil
@@ -438,7 +453,9 @@ func (daemon *Daemon) initializeNetworking(ctx context.Context, cfg *config.Conf
 	}
 
 	// Cleanup any stale sandbox left over due to ungraceful daemon shutdown
-	if err := daemon.netController.SandboxDestroy(ctx, ctr.ID); err != nil {
+	if err := daemon.runInNetNS(func() error {
+		return daemon.netController.SandboxDestroy(ctx, ctr.ID)
+	}); err != nil {
 		log.G(ctx).WithError(err).Errorf("failed to cleanup up stale network sandbox for container %s", ctr.ID)
 	}
 
@@ -482,7 +499,9 @@ func (daemon *Daemon) initializeNetworking(ctx context.Context, cfg *config.Conf
 
 	defer func() {
 		if retErr != nil {
-			if err := sb.Delete(ctx); err != nil {
+			if err := daemon.runInNetNS(func() error {
+				return sb.Delete(ctx)
+			}); err != nil {
 				log.G(ctx).WithFields(log.Fields{
 					"error":     err,
 					"container": ctr.ID,
@@ -797,7 +816,7 @@ func (daemon *Daemon) connectToNetwork(ctx context.Context, cfg *config.Config, 
 
 	if !ctr.Managed {
 		// add container name/alias to DNS
-		if err := daemon.ActivateContainerServiceBinding(ctr.Name); err != nil {
+		if err := daemon.activateContainerServiceBinding(ctr); err != nil {
 			return fmt.Errorf("activate container service binding for %s failed: %v", ctr.Name, err)
 		}
 	}
@@ -1012,7 +1031,9 @@ func (daemon *Daemon) releaseNetwork(ctx context.Context, ctr *container.Contain
 		return
 	}
 
-	if err := sb.Delete(ctx); err != nil {
+	if err := daemon.runInNetNS(func() error {
+		return sb.Delete(ctx)
+	}); err != nil {
 		log.G(ctx).Errorf("Error deleting sandbox id %s for container %s: %v", sid, ctr.ID, err)
 	}
 
@@ -1041,19 +1062,25 @@ func (daemon *Daemon) ConnectToNetwork(ctx context.Context, ctr *container.Conta
 
 		n, err := daemon.FindNetwork(idOrName)
 		if err == nil && n != nil {
-			if err := daemon.updateNetworkConfig(ctr, n, endpointConfig); err != nil {
+			if err := daemon.runInNetNS(func() error {
+				return daemon.updateNetworkConfig(ctr, n, endpointConfig)
+			}); err != nil {
 				return err
 			}
 		} else {
 			ctr.NetworkSettings.Networks[idOrName] = &network.EndpointSettings{
-				EndpointSettings: endpointConfig,
+				EndpointSettings:  endpointConfig,
+				DesiredMacAddress: endpointConfig.MacAddress,
 			}
 		}
 	} else {
 		epc := &network.EndpointSettings{
-			EndpointSettings: endpointConfig,
+			EndpointSettings:  endpointConfig,
+			DesiredMacAddress: endpointConfig.MacAddress,
 		}
-		if err := daemon.connectToNetwork(ctx, &daemon.config().Config, ctr, idOrName, epc); err != nil {
+		if err := daemon.runInNetNS(func() error {
+			return daemon.connectToNetwork(ctx, &daemon.config().Config, ctr, idOrName, epc)
+		}); err != nil {
 			return err
 		}
 	}
@@ -1085,7 +1112,9 @@ func (daemon *Daemon) DisconnectFromNetwork(ctx context.Context, ctr *container.
 			return cerrdefs.ErrInvalidArgument.WithMessage("cannot disconnect container from host network - container was created in host network mode")
 		}
 
-		if err := daemon.disconnectFromNetwork(ctx, ctr, n, false); err != nil {
+		if err := daemon.runInNetNS(func() error {
+			return daemon.disconnectFromNetwork(ctx, ctr, n, false)
+		}); err != nil {
 			return err
 		}
 	} else {
@@ -1105,9 +1134,13 @@ func (daemon *Daemon) ActivateContainerServiceBinding(containerName string) erro
 	if err != nil {
 		return err
 	}
+	return daemon.activateContainerServiceBinding(ctr)
+}
+
+func (daemon *Daemon) activateContainerServiceBinding(ctr *container.Container) error {
 	sb, err := daemon.netController.GetSandbox(ctr.ID)
 	if err != nil {
-		return fmt.Errorf("failed to activate service binding for container %s: %w", containerName, err)
+		return fmt.Errorf("failed to activate service binding for container %s: %w", ctr.Name, err)
 	}
 	return sb.EnableService()
 }
@@ -1118,10 +1151,17 @@ func (daemon *Daemon) DeactivateContainerServiceBinding(containerName string) er
 	if err != nil {
 		return err
 	}
+	return daemon.deactivateContainerServiceBinding(ctr)
+}
+
+func (daemon *Daemon) deactivateContainerServiceBinding(ctr *container.Container) error {
 	sb, err := daemon.netController.GetSandbox(ctr.ID)
 	if err != nil {
 		// If the network sandbox is not found, then there is nothing to deactivate
-		log.G(context.TODO()).WithError(err).Debugf("Could not find network sandbox for container %s on service binding deactivation request", containerName)
+		log.G(context.TODO()).WithFields(log.Fields{
+			"error":     err,
+			"container": ctr.ID,
+		}).Debug("Could not find network sandbox for container on service binding deactivation request")
 		return nil
 	}
 	return sb.DisableService()

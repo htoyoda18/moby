@@ -1,0 +1,53 @@
+- 概要
+  - daemon/command は dockerd コマンドのエントリーポイントを提供するパッケージ
+- 内部構造
+  - debug
+    - デバッグ機能
+  - trap
+    - シグナルハンドリング
+  - cobra.go
+    - Cobra セットアップ
+  - config_unix_test.go
+  - config_unix.go
+    - Unix 固有の設定
+  - config_windows.go
+    - Windows 固有の設定
+  - config.go
+    - 設定フラグのインストール
+  - daemon_freebsd.go
+  - daemon_linux_test.go
+  - daemon_linux.go
+    - Linux 固有の処理
+  - daemon_test.go
+  - daemon_unix_test.go
+  - daemon_unix.go
+    - Unix 固有の処理
+  - daemon_windows.go
+    - Windows 固有の処理
+  - daemon.go
+    - Daemon 起動・停止・設定ロジック
+  - docker_unix.go
+  - docker_windows.go
+  - docker.go
+    - dockerd コマンドのメインエントリー
+    - Cobra フレームワークを使用
+    - --validate で設定検証のみ実行可能
+  - docker.go.md
+  - error.go
+    - エラー処理
+  - grpclog.go
+    - gRPC ログ設定
+  - httphandler.go
+    - HTTP ハンドラー設定
+  - main_linux_test.go
+  - metrics.go
+    - メトリクス設定
+  - note.md
+  - options_test.go
+  - options.go
+    - コマンドラインオプション処理
+  - required.go
+    - エラー処理
+  - service_unsupported.go
+  - service_windows.go
+    - Windows サービス対応

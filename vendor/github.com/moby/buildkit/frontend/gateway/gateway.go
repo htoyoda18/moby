@@ -19,7 +19,6 @@ import (
 	"github.com/containerd/containerd/v2/core/mount"
 	"github.com/containerd/containerd/v2/defaults"
 	"github.com/distribution/reference"
-	"github.com/golang/protobuf/ptypes/timestamp"
 	apitypes "github.com/moby/buildkit/api/types"
 	"github.com/moby/buildkit/cache"
 	cacheutil "github.com/moby/buildkit/cache/util"
@@ -60,6 +59,7 @@ import (
 	"google.golang.org/grpc/health"
 	"google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/status"
+	timestamp "google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func NewGatewayFrontend(workers worker.Infos, allowedRepositories []string) (frontend.Frontend, error) {
@@ -591,6 +591,7 @@ func (lbf *llbBridgeForwarder) ResolveSourceMeta(ctx context.Context, req *pb.Re
 	if req.Image != nil {
 		resolveopt.ImageOpt.NoConfig = req.Image.NoConfig
 		resolveopt.ImageOpt.AttestationChain = req.Image.AttestationChain
+		resolveopt.ImageOpt.ResolveAttestations = slices.Clone(req.Image.ResolveAttestations)
 	}
 	resolveopt.OCILayoutOpt = &sourceresolver.ResolveOCILayoutOpt{
 		Platform: platform,
@@ -598,6 +599,14 @@ func (lbf *llbBridgeForwarder) ResolveSourceMeta(ctx context.Context, req *pb.Re
 	if req.Git != nil {
 		resolveopt.GitOpt = &sourceresolver.ResolveGitOpt{
 			ReturnObject: req.Git.ReturnObject,
+		}
+	}
+	if req.HTTP != nil && req.HTTP.ChecksumRequest != nil {
+		resolveopt.HTTPOpt = &sourceresolver.ResolveHTTPOpt{
+			ChecksumReq: &sourceresolver.ResolveHTTPChecksumRequest{
+				Algo:   fromPBHTTPChecksumAlgo(req.HTTP.ChecksumRequest.Algo),
+				Suffix: slices.Clone(req.HTTP.ChecksumRequest.Suffix),
+			},
 		}
 	}
 
@@ -698,8 +707,17 @@ func (lbf *llbBridgeForwarder) registerResultIDs(results ...solver.Result) (ids 
 		if !ok {
 			return ids, errors.Errorf("unexpected type for result, got %T", res.Sys())
 		}
-		ids[i] = workerRef.ID()
-		lbf.workerRefByID[workerRef.ID()] = workerRef
+		id := workerRef.ID()
+		ids[i] = id
+		if existing, ok := lbf.workerRefByID[id]; ok {
+			if existing != workerRef {
+				if err := workerRef.Release(context.TODO()); err != nil {
+					return ids, errors.WithStack(err)
+				}
+			}
+			continue
+		}
+		lbf.workerRefByID[id] = workerRef
 	}
 	return ids, nil
 }
@@ -1562,11 +1580,19 @@ func (lbf *llbBridgeForwarder) ExecProcess(srv pb.LLBBridge_ExecProcessServer) e
 					return stack.Enable(err)
 				})
 
+				// startedSent gates the proc.Wait goroutine until
+				// Started is sent and output readers are spawned,
+				// preventing Exit-before-Started and a deadlock
+				// where pio.Close() races with reader setup.
+				startedSent := make(chan struct{})
+
 				eg.Go(func() error {
 					defer func() {
 						pio.Close()
 					}()
 					err := proc.Wait()
+
+					<-startedSent
 
 					var statusCode uint32
 					var exitError *pb.ExitError
@@ -1617,6 +1643,7 @@ func (lbf *llbBridgeForwarder) ExecProcess(srv pb.LLBBridge_ExecProcessServer) e
 					},
 				})
 				if err != nil {
+					close(startedSent)
 					return stack.Enable(err)
 				}
 
@@ -1660,6 +1687,7 @@ func (lbf *llbBridgeForwarder) ExecProcess(srv pb.LLBBridge_ExecProcessServer) e
 						return stack.Enable(err)
 					})
 				}
+				close(startedSent)
 			}
 		}
 	})
@@ -1766,8 +1794,27 @@ func ToPBResolveSourceMetaResponse(in *sourceresolver.MetaResponse) *pb.ResolveS
 			Filename:     in.HTTP.Filename,
 			LastModified: lastModified,
 		}
+		if in.HTTP.ChecksumResponse != nil {
+			r.HTTP.ChecksumResponse = &pb.ChecksumResponse{
+				Digest: in.HTTP.ChecksumResponse.Digest,
+				Suffix: slices.Clone(in.HTTP.ChecksumResponse.Suffix),
+			}
+		}
 	}
 	return r
+}
+
+func fromPBHTTPChecksumAlgo(in pb.ChecksumRequest_ChecksumAlgo) sourceresolver.ResolveHTTPChecksumAlgo {
+	switch in {
+	case pb.ChecksumRequest_CHECKSUM_ALGO_SHA256:
+		return sourceresolver.ResolveHTTPChecksumAlgoSHA256
+	case pb.ChecksumRequest_CHECKSUM_ALGO_SHA384:
+		return sourceresolver.ResolveHTTPChecksumAlgoSHA384
+	case pb.ChecksumRequest_CHECKSUM_ALGO_SHA512:
+		return sourceresolver.ResolveHTTPChecksumAlgoSHA512
+	default:
+		return sourceresolver.ResolveHTTPChecksumAlgo(in)
+	}
 }
 
 func toPBAttestationChain(ac *sourceresolver.AttestationChain) *pb.AttestationChain {

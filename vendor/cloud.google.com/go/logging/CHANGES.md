@@ -1,5 +1,22 @@
 # Changes
 
+## [1.18.0](https://github.com/googleapis/google-cloud-go/releases/tag/logging%2Fv1.18.0) (2026-05-07)
+
+## [1.17.0](https://github.com/googleapis/google-cloud-go/releases/tag/logging%2Fv1.17.0) (2026-04-30)
+
+## [1.16.0](https://github.com/googleapis/google-cloud-go/releases/tag/logging%2Fv1.16.0) (2026-04-13)
+
+## [1.15.0](https://github.com/googleapis/google-cloud-go/releases/tag/logging%2Fv1.15.0) (2026-04-09)
+
+## [1.14.0](https://github.com/googleapis/google-cloud-go/releases/tag/logging%2Fv1.14.0) (2026-04-02)
+
+## [1.13.2](https://github.com/googleapis/google-cloud-go/releases/tag/logging%2Fv1.13.2) (2026-02-04)
+
+
+### Features
+
+* **logging:** Enable AllowHardBoundTokens for Go logging library ([#13615](https://github.com/googleapis/google-cloud-go/pull/13615)) ([18dec3a](https://github.com/googleapis/google-cloud-go/commit/18dec3a31f1d24dfa1dc58eeb532991336772dac))
+
 ## [1.13.1](https://github.com/googleapis/google-cloud-go/compare/logging/v1.13.0...logging/v1.13.1) (2025-10-28)
 
 

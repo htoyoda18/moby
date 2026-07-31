@@ -1,0 +1,31 @@
+- 概要
+  - Engine API の型定義と Swagger 仕様
+  - クライアント/サーバー間の共有インターフェース
+- 内部構造
+  - docs
+    - バージョン別APIドキュメント
+  - pkg
+    - API利用のユーティリティ
+  - releases
+    - APIモジュール独立リリース管理
+  - scripts
+    - Swagger生成・検証スクリプト
+  - templates
+    - コード生成カスタムテンプレート
+  - types
+    - API型定義
+  - validate
+    - YAML形式検証
+  - doc.go
+  - Dockerfile
+  - go.mod
+  - go.sum
+  - LICENSE
+  - Makefile
+    - API専用ビルド・検証ターゲット
+  - README.md
+  - swagger-gen.yaml
+  - swagger.yaml
+    - Docker Engine APIの完全なSwagger 2.0仕様定義
+  - swagger.yaml.md
+    - go-swaggerコード生成の設定

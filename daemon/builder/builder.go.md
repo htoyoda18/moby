@@ -1,0 +1,71 @@
+- 概要
+  - Docker ビルダーの抽象化インターフェースを定義
+- 内部処理
+  - Source
+    - Root
+      - ソースのルートパス
+    - Close
+      - クリーンアップ(一時ディレクトリ削除等)
+    - Hash
+      - ファイルのチェックサム計算
+  - Backend
+    - ImageBackend
+      - イメージ操作
+    - ExecBackend
+      - コンテナ実行
+    - CommitBuildStep
+      - ビルドステップからイメージ作成
+    - ContainerCreateWorkdir
+    - CreateImage
+      - イメージ作成
+    - ImageCacheBuilder
+      - キャッシュ構築
+  - ImageBackend
+    - イメージ取得のインターフェース
+  - ExecBackend
+    - コンテナ実行のインターフェース
+    - ContainerAttachRaw
+      - コンテナにアタッチ
+    - ContainerCreateIgnoreImagesArgsEscaped
+      - コンテナ作成
+    - ContainerRm
+      - コンテナ削除
+    - ContainerStart
+      - コンテナ起動
+    - ContainerWait
+      - コンテナ終了待ち
+  - Result
+    - ビルド結果を表す構造体
+    - ImageID
+      - 作成されたイメージ ID
+    - FromImage
+      - ベースイメージ
+  - ImageCacheBuilder
+    - キャッシュ生成のインターフェース
+  - ImageCache
+    - イメージキャッシュの検索インターフェース
+  - Image
+    - ビルダーが使用するイメージの抽象化
+    - ImageID
+      - イメージ ID 取得
+    - RunConfig
+      - 実行設定取得
+    - MarshalJSON
+      - JSON 化
+    - OperatingSystem
+      - OS 取得
+  - ROLayer
+    - Release
+      - レイヤー解放
+    - NewRWLayer
+      - 読み書き可能レイヤー作成
+    - DiffID
+      - レイヤーのDiff ID
+    - ContentStoreDigest
+  - RWLayer
+    - Release
+      - レイヤー解放
+    - Root
+      - ルートパス取得
+    - Commit
+      - 変更をコミット
